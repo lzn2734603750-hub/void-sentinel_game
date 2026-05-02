@@ -56,7 +56,7 @@ function onMessage(ws, raw) {
 
     if (type === 'create_room') {
         var code = generateRoomCode();
-        rooms[code] = { host: ws, guest: null, hostReady: false, guestReady: false };
+        rooms[code] = { host: ws, guest: null, hostReady: true, guestReady: false };
         ws.roomCode = code;
         ws.role = 'host';
         send(ws, { type: 'room_created', room: code, readyState: roomReadyState(rooms[code]) });
@@ -119,8 +119,8 @@ function onMessage(ws, raw) {
         var room = rooms[roomCode];
         if (!room) return;
         if (ws.role !== 'host') return;
-        var rs = roomReadyState(room);
-        if (!rs.allReady) { send(ws, { type: 'error', payload: '队友尚未就绪' }); return; }
+        if (!room.guest) { send(ws, { type: 'error', payload: '队友尚未加入' }); return; }
+        if (!room.guestReady) { send(ws, { type: 'error', payload: '队友尚未就绪' }); return; }
         broadcastRoom(room, { type: 'host_start' });
         console.log('[房间] ' + roomCode + ' 主机开始游戏！');
         return;

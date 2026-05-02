@@ -339,6 +339,7 @@ function setupMobile() {
         e.preventDefault();
         aimPointerId = null;
         mobileFire = false;
+        mobileAimActive = false;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -347,6 +348,7 @@ function setupMobile() {
         if (e.pointerId !== aimPointerId) return;
         aimPointerId = null;
         mobileFire = false;
+        mobileAimActive = false;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -355,6 +357,7 @@ function setupMobile() {
         if (e.pointerId !== aimPointerId) return;
         aimPointerId = null;
         mobileFire = false;
+        mobileAimActive = false;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
