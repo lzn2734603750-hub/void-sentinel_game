@@ -1,0 +1,13 @@
+{
+  "name": "void-sentinel",
+  "version": "3.0.0",
+  "description": "虚空哨兵 - 太空射击游戏（支持在线联机）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

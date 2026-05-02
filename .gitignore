@@ -1,0 +1,4 @@
+node_modules/
+.vscode/
+npm_cache/
+*.log

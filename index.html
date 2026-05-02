@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>虚空哨兵 v2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- 移动端虚拟控件容器 -->
+    <div id="mobileControls" style="display:none;">
+        <div id="joystickBase">
+            <div id="joystickThumb"></div>
+        </div>
+        <div id="aimFireBase">
+            <div id="aimFireThumb"></div>
+            <div id="aimFireLabel">射击</div>
+        </div>
+        <div id="dashButton">闪避</div>
+    </div>
+
+    <!-- 模块加载顺序：依赖关系 -->
+    <script src="utils.js"></script>
+    <script src="audio.js"></script>
+    <script src="player.js"></script>
+    <script src="bullets.js"></script>
+    <script src="enemies.js"></script>
+    <script src="ui.js"></script>
+    <script src="network.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
