@@ -8,6 +8,8 @@ const allUpgrades = [
     { name: '射速提升', icon: '⚡', desc: '射击间隔 -2 帧', apply: function(p) { p.fireRate = Math.max(3, p.fireRate - 2); } },
     { name: '移动加速', icon: '👟', desc: '移速 +1.5', apply: function(p) { p.speed = (p.speed || 5) + 1.5; } },
     { name: '子弹数+1', icon: '🔫', desc: '子弹+1', apply: function(p) { p.bulletCount += 1; } },
+    { name: '双炮齐射', icon: '🔫🔫', desc: '弹数x2，扩角', apply: function(p) { p.bulletCount = Math.max(2, p.bulletCount * 2); } },
+    { name: '扩散射击', icon: '💠', desc: '宽角扇形弹幕，子弹+3', apply: function(p) { p.bulletCount += 3; p.spreadMode = (p.spreadMode || 0) + 1; } },
     { name: '回复生命', icon: '❤️', desc: '回满生命值', apply: function(p) { p.hp = p.maxHp; } },
     { name: '最大生命+1', icon: '💖', desc: '最大生命 +1 并回满', apply: function(p) { p.maxHp += 1; p.hp = p.maxHp; } },
     { name: '暴击提升', icon: '💥', desc: '暴击率 +25%', apply: function(p) { p.critChance = Math.min(1, (p.critChance || 0) + 0.25); } },

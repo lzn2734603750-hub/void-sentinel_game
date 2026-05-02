@@ -9,7 +9,10 @@ function spawnBullets(player) {
 
     const baseAngle = player.angle;
     const count = player.bulletCount;
-    const spread = Math.min(0.4, 0.15 + count * 0.05);
+    const spreadMode = player.spreadMode || 0;
+    const spread = spreadMode > 0
+        ? Math.min(Math.PI * 0.7, 0.3 + spreadMode * 0.2)
+        : Math.min(0.4, 0.15 + count * 0.05);
     const isCrit = player.critChance > 0 && Math.random() < player.critChance;
     const bs = player.bulletSpeed || 10;
     const bd = player.bulletDamage || 1;

@@ -275,6 +275,7 @@ function syncGuestInput() {
         fireRate: p1.fireRate, bulletCount: p1.bulletCount,
         bulletSpeed: p1.bulletSpeed, bulletDamage: p1.bulletDamage,
         bulletSize: p1.bulletSize, critChance: p1.critChance,
+        spreadMode: p1.spreadMode,
     };
     networkWs.send(JSON.stringify({ type: 'game_state', room: networkRoom, payload: { type: 'guest_input', data: input } }));
 }
@@ -329,6 +330,7 @@ function applyRemoteState(state) {
         p2.fireRate = d.fireRate; p2.bulletCount = d.bulletCount;
         p2.bulletSpeed = d.bulletSpeed || 10; p2.bulletDamage = d.bulletDamage || 1;
         p2.bulletSize = d.bulletSize || 1; p2.critChance = d.critChance || 0;
+        p2.spreadMode = d.spreadMode || 0;
         p2.fireCooldown = d.fireCooldown;
         if (d.shooting && p2.fireCooldown <= 0 && p2.alive) {
             spawnBullets(p2);

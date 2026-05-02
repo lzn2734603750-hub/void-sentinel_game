@@ -75,7 +75,7 @@ function spawnEnemy() {
     }
     const t = getRandomEnemyType();
     var waveHpBonus = Math.floor(wave / 3);
-    var waveSpdBonus = wave * 0.05;
+    var waveSpdBonus = wave * 0.10;
     enemies.push({
         x, y,
         radius: t.radius,

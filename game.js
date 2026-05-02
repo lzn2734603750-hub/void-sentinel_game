@@ -80,7 +80,7 @@ function resetWave() {
 function nextWave() {
     wave++;
     var ds = getDifficultySettings();
-    enemyBaseSpeed += 0.35 * ds.enemySpeedMul;
+    enemyBaseSpeed += 0.45 * ds.enemySpeedMul;
     enemySpawnDelay = Math.max(8, enemySpawnDelay - Math.round(3 * ds.waveMul));
     waveText = '第 ' + wave + ' 波';
     waveTextTimer = 120;
@@ -366,7 +366,7 @@ function setupMobile() {
         if (!aimBaseRect) return;
         var cx = aimBaseRect.left + aimBaseRect.width / 2;
         var cy = aimBaseRect.top + aimBaseRect.height / 2;
-        var maxR = aimBaseRect.width / 2 - 28;
+        var maxR = aimBaseRect.width / 2 - 25;
         var dx = clientX - cx;
         var dy = clientY - cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
@@ -374,7 +374,7 @@ function setupMobile() {
         aimFireThumb.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
         aimFireLabel.style.display = 'none';
         if (dist > 3 || !mobileAimActive) {
-            mobileAimAngle = Math.atan2(dy, dx);
+            mobileAimAngle = Math.atan2(dy * 0.55, dx * 0.55);
         }
         mobileAimActive = true;
     }

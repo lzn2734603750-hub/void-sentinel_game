@@ -51,6 +51,7 @@ function createPlayer(x, y, playerIndex) {
         bulletDamage: 1,
         bulletSize: 1,
         magnetRange: 0,
+        spreadMode: 0,
         playerIndex,
         alive: true,
         colorScheme: scheme,
@@ -363,7 +364,7 @@ function updateDrones(player) {
         dr.timer++;
         var ox = player.x + Math.cos(dr.angle) * (40 + di * 10);
         var oy = player.y + Math.sin(dr.angle) * (40 + di * 10);
-        if (dr.timer > 10) {
+        if (dr.timer > 25) {
             dr.timer = 0;
             var closest = null, minDist = 280;
             for (var ei = 0; ei < enemies.length; ei++) {
