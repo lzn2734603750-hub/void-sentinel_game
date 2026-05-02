@@ -127,8 +127,11 @@ function handleNetworkMessage(msg) {
             break;
 
         case 'error':
-            networkState = 'idle';
-            networkRole = '';
+            networkError = msg.payload || '发生错误';
+            if (networkState !== 'waiting') {
+                networkState = 'idle';
+                networkRole = '';
+            }
             break;
     }
 }

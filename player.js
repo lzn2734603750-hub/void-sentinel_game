@@ -91,6 +91,8 @@ var mobileMoveX = 0;
 var mobileMoveY = 0;
 var mobileAimX = canvas.width / 2;
 var mobileAimY = canvas.height / 2;
+var mobileAimDirX = 0;
+var mobileAimDirY = 0;
 var mobileAimActive = false;
 var mobileFire = false;
 var mobileDash = false;
@@ -178,7 +180,7 @@ function updatePlayerMovement(player, isP2) {
     if (!isP2) {
         if (gameMode === 'solo') {
             if (isMobile() && mobileAimActive) {
-                player.angle = Math.atan2(mobileAimY - player.y, mobileAimX - player.x);
+                player.angle = Math.atan2(mobileAimDirY, mobileAimDirX);
             } else if (isMobile() && (mobileMoveX !== 0 || mobileMoveY !== 0)) {
                 player.angle = Math.atan2(mobileMoveY, mobileMoveX);
             } else {

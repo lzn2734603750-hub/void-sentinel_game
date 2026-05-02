@@ -336,6 +336,9 @@ function setupMobile() {
         e.preventDefault();
         aimPointerId = null;
         mobileFire = false;
+        mobileAimActive = false;
+        mobileAimDirX = 0;
+        mobileAimDirY = 0;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -344,6 +347,9 @@ function setupMobile() {
         if (e.pointerId !== aimPointerId) return;
         aimPointerId = null;
         mobileFire = false;
+        mobileAimActive = false;
+        mobileAimDirX = 0;
+        mobileAimDirY = 0;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -352,6 +358,9 @@ function setupMobile() {
         if (e.pointerId !== aimPointerId) return;
         aimPointerId = null;
         mobileFire = false;
+        mobileAimActive = false;
+        mobileAimDirX = 0;
+        mobileAimDirY = 0;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -364,11 +373,15 @@ function setupMobile() {
         var dx = clientX - cx;
         var dy = clientY - cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; }
+        if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; dist = maxR; }
         aimFireThumb.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
         aimFireLabel.style.display = 'none';
         mobileAimX = cx + dx;
         mobileAimY = cy + dy;
+        if (dist > 5) {
+            mobileAimDirX = dx / dist;
+            mobileAimDirY = dy / dist;
+        }
         mobileAimActive = true;
     }
 

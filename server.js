@@ -56,7 +56,7 @@ function onMessage(ws, raw) {
 
     if (type === 'create_room') {
         var code = generateRoomCode();
-        rooms[code] = { host: ws, guest: null, hostReady: false, guestReady: false };
+        rooms[code] = { host: ws, guest: null, hostReady: true, guestReady: false };
         ws.roomCode = code;
         ws.role = 'host';
         send(ws, { type: 'room_created', room: code, readyState: roomReadyState(rooms[code]) });
