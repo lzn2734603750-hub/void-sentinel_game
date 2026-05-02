@@ -5,18 +5,19 @@
 // ---------- 升级系统 ----------
 
 const allUpgrades = [
-    { name: '射速提升', icon: '⚡', desc: '射击间隔 -2 帧', apply: (p) => { p.fireRate = Math.max(3, p.fireRate - 2); } },
-    { name: '移动加速', icon: '👟', desc: '移速 +1', apply: (p) => { p.speed += 1; } },
-    { name: '子弹数+1', icon: '🔫', desc: '同时发射子弹 +1', apply: (p) => { p.bulletCount += 1; } },
-    { name: '回复生命', icon: '❤️', desc: '回满生命值', apply: (p) => { p.hp = p.maxHp; } },
-    { name: '最大生命+1', icon: '💖', desc: '最大生命值 +1 并回满', apply: (p) => { p.maxHp += 1; p.hp = p.maxHp; } },
-    { name: '暴击提升', icon: '💥', desc: '暴击率 +25%', apply: (p) => { p.critChance = Math.min(1, p.critChance + 0.25); } },
-    { name: '召唤僚机', icon: '🛸', desc: '自动攻击附近敌人', apply: (p) => { p.droneActive = true; } },
-    { name: '受伤冲击波', icon: '💫', desc: '受击释放冲击波', apply: (p) => { p.shockwaveOnHit = true; } },
-    { name: '子弹加速', icon: '🚀', desc: '子弹速度 +3', apply: (p) => { p.bulletSpeed = (p.bulletSpeed || 10) + 3; } },
-    { name: '子弹伤害+1', icon: '💢', desc: '每颗子弹伤害 +1', apply: (p) => { p.bulletDamage = (p.bulletDamage || 1) + 1; } },
-    { name: '护盾强化', icon: '🛡️', desc: '获得 500 帧护盾', apply: (p) => { p.shieldActive = true; p.shieldTimer = 500; } },
-    { name: '冲刺冷却减半', icon: '💨', desc: '冲刺冷却时间 -40', apply: (p) => { p.dashCooldownMax = Math.max(30, p.dashCooldownMax - 40); } },
+    { name: '射速提升', icon: '⚡', desc: '射击间隔 -2 帧', apply: function(p) { p.fireRate = Math.max(3, p.fireRate - 2); } },
+    { name: '移动加速', icon: '👟', desc: '移速 +1.5', apply: function(p) { p.speed = (p.speed || 5) + 1.5; } },
+    { name: '子弹数+1', icon: '🔫', desc: '子弹+1', apply: function(p) { p.bulletCount += 1; } },
+    { name: '回复生命', icon: '❤️', desc: '回满生命值', apply: function(p) { p.hp = p.maxHp; } },
+    { name: '最大生命+1', icon: '💖', desc: '最大生命 +1 并回满', apply: function(p) { p.maxHp += 1; p.hp = p.maxHp; } },
+    { name: '暴击提升', icon: '💥', desc: '暴击率 +25%', apply: function(p) { p.critChance = Math.min(1, (p.critChance || 0) + 0.25); } },
+    { name: '僚机+1', icon: '🛸', desc: '增加 1 架僚机', apply: function(p) { p.droneCount = (p.droneCount || 0) + 1; } },
+    { name: '受伤冲击波', icon: '💫', desc: '受击释放冲击波', apply: function(p) { p.shockwaveOnHit = true; } },
+    { name: '子弹加速', icon: '🚀', desc: '子弹速度 +3', apply: function(p) { p.bulletSpeed = (p.bulletSpeed || 10) + 3; } },
+    { name: '子弹伤害+1', icon: '💢', desc: '子弹伤害 +1', apply: function(p) { p.bulletDamage = (p.bulletDamage || 1) + 1; } },
+    { name: '护盾强化', icon: '🛡️', desc: '获得 500 帧护盾', apply: function(p) { p.shieldActive = true; p.shieldTimer = 500; } },
+    { name: '冲刺冷却缩短', icon: '💨', desc: '冲刺CD -40', apply: function(p) { p.dashCooldownMax = Math.max(30, p.dashCooldownMax - 40); } },
+    { name: '吸铁石', icon: '🧲', desc: '吸经验范围+80', apply: function(p) { p.magnetRange = (p.magnetRange || 0) + 80; } },
 ];
 
 var upgradeCards = [];
@@ -318,7 +319,7 @@ function handleClick(cx, cy) {
             particles.length = 0;
             expOrbs.length = 0;
             enemySpawnTimer = 0;
-            drone = null;
+            drones = [];
             players.length = 0;
             p1 = null;
             p2 = null;
@@ -367,7 +368,7 @@ function handleClick(cx, cy) {
             particles.length = 0;
             expOrbs.length = 0;
             enemySpawnTimer = 0;
-            drone = null;
+            drones = [];
             players.length = 0;
             p1 = null;
             p2 = null;

@@ -68,10 +68,9 @@ function handleNetworkMessage(msg) {
             networkRole = 'host';
             networkState = 'waiting';
             networkPeerJoined = false;
-            networkHostReady = false;
+            networkHostReady = true;
             networkGuestReady = false;
             if (msg.readyState) {
-                networkHostReady = msg.readyState.hostReady;
                 networkGuestReady = msg.readyState.guestReady;
             }
             break;
@@ -173,7 +172,7 @@ function hostStartGame() {
     if (!networkWs || networkWs.readyState !== WebSocket.OPEN || !networkRoom) return;
     if (networkRole !== 'host') return;
     if (!networkPeerJoined) return;
-    if (!networkHostReady || !networkGuestReady) return;
+    if (!networkGuestReady) return;
     networkWs.send(JSON.stringify({ type: 'host_start', room: networkRoom }));
     playSound('click');
 }

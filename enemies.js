@@ -74,12 +74,14 @@ function spawnEnemy() {
         case 3: x = -pad; y = Math.random() * canvas.height; break;
     }
     const t = getRandomEnemyType();
+    var waveHpBonus = Math.floor(wave / 3);
+    var waveSpdBonus = wave * 0.05;
     enemies.push({
         x, y,
         radius: t.radius,
-        speed: enemyBaseSpeed * t.spd + Math.random() * 0.5,
-        hp: t.hp,
-        maxHp: t.hp,
+        speed: enemyBaseSpeed * t.spd + Math.random() * 0.5 + waveSpdBonus,
+        hp: t.hp + waveHpBonus,
+        maxHp: t.hp + waveHpBonus,
         color: t.color,
         strokeColor: t.stroke,
         glowColor: t.glowColor,

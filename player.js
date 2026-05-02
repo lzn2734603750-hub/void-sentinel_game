@@ -45,11 +45,12 @@ function createPlayer(x, y, playerIndex) {
         shieldActive: false,
         shieldTimer: 0,
         critChance: 0,
-        droneActive: false,
+        droneCount: 0,
         shockwaveOnHit: false,
         bulletSpeed: 10,
         bulletDamage: 1,
         bulletSize: 1,
+        magnetRange: 0,
         playerIndex,
         alive: true,
         colorScheme: scheme,
@@ -347,61 +348,73 @@ function spawnShieldEffect(player) {
     spawnShieldParticles(player.x, player.y);
 }
 
-// ---------- 僚机 ----------
-var drone = null;
+// ---------- 僚机系统 (多架) ----------
+var drones = [];
 
-function updateDrone(player) {
-    if (!player || !player.alive || !player.droneActive) {
-        drone = null;
+function updateDrones(player) {
+    if (!player || !player.alive || player.droneCount <= 0) {
+        drones = [];
         return;
     }
-    if (!drone) {
-        drone = { x: player.x, y: player.y, angle: 0, timer: 0 };
+    while (drones.length < player.droneCount) {
+        drones.push({ angle: Math.random() * Math.PI * 2, timer: 0 });
     }
-    drone.angle += 0.04;
-    drone.x = player.x + Math.cos(drone.angle) * 50;
-    drone.y = player.y + Math.sin(drone.angle) * 50;
-    drone.timer++;
-    if (drone.timer > 12) {
-        drone.timer = 0;
-        let closest = null, minDist = 250;
-        for (const e of enemies) {
-            if (e.behavior === 'bossBullet') continue;
-            const d = Math.sqrt((drone.x - e.x) ** 2 + (drone.y - e.y) ** 2);
-            if (d < minDist) { minDist = d; closest = e; }
-        }
-        if (closest) {
-            const a = Math.atan2(closest.y - drone.y, closest.x - drone.x);
-            bullets.push({
-                x: drone.x, y: drone.y,
-                vx: Math.cos(a) * 9,
-                vy: Math.sin(a) * 9,
-                radius: 3, damage: 1, color: '#0fa',
-                trail: [],
-            });
-            playSound('shootAlt');
+    while (drones.length > player.droneCount) {
+        drones.pop();
+    }
+    for (var di = 0; di < drones.length; di++) {
+        var dr = drones[di];
+        dr.angle += 0.03 + di * 0.004;
+        dr.timer++;
+        var ox = player.x + Math.cos(dr.angle) * (40 + di * 10);
+        var oy = player.y + Math.sin(dr.angle) * (40 + di * 10);
+        if (dr.timer > 10) {
+            dr.timer = 0;
+            var closest = null, minDist = 280;
+            for (var ei = 0; ei < enemies.length; ei++) {
+                var ee = enemies[ei];
+                if (ee.behavior === 'bossBullet') continue;
+                var edx = ox - ee.x, edy = oy - ee.y;
+                var ed = Math.sqrt(edx * edx + edy * edy);
+                if (ed < minDist) { minDist = ed; closest = ee; }
+            }
+            if (closest) {
+                var a = Math.atan2(closest.y - oy, closest.x - ox);
+                bullets.push({
+                    x: ox, y: oy,
+                    vx: Math.cos(a) * 9,
+                    vy: Math.sin(a) * 9,
+                    radius: 3, damage: 1, color: '#0fa',
+                    trail: [],
+                });
+                playSound('shootAlt');
+            }
         }
     }
 }
 
-function drawDrone() {
-    if (!drone) return;
-    ctx.fillStyle = '#0fa';
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1.5;
-    ctx.shadowColor = '#0fa';
-    ctx.shadowBlur = 8;
-    ctx.beginPath();
-    ctx.arc(drone.x, drone.y, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // 僚机核心
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(drone.x, drone.y, 3, 0, Math.PI * 2);
-    ctx.fill();
+function drawDrones() {
+    if (drones.length === 0) return;
+    for (var di = 0; di < drones.length; di++) {
+        var dr = drones[di];
+        if (!p1 || !p1.alive) return;
+        var ox = p1.x + Math.cos(dr.angle) * (40 + di * 10);
+        var oy = p1.y + Math.sin(dr.angle) * (40 + di * 10);
+        ctx.fillStyle = '#0fa';
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = '#0fa';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(ox, oy, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
 // ---------- 冲击波 ----------

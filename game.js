@@ -42,7 +42,7 @@ function resetGame() {
     particles.length = 0;
     expOrbs.length = 0;
     enemySpawnTimer = 0;
-    drone = null;
+    drones = [];
 
     var ds = getDifficultySettings();
     resetEnemyParams();
@@ -80,8 +80,8 @@ function resetWave() {
 function nextWave() {
     wave++;
     var ds = getDifficultySettings();
-    enemyBaseSpeed += 0.4 * ds.enemySpeedMul;
-    enemySpawnDelay = Math.max(12, enemySpawnDelay - Math.round(4 * ds.waveMul));
+    enemyBaseSpeed += 0.35 * ds.enemySpeedMul;
+    enemySpawnDelay = Math.max(8, enemySpawnDelay - Math.round(3 * ds.waveMul));
     waveText = '第 ' + wave + ' 波';
     waveTextTimer = 120;
     waveTimer = 0;
@@ -166,8 +166,8 @@ function update() {
 
     for (var i = 0; i < players.length; i++) {
         var pl = players[i];
-        if (pl && pl.alive && pl.droneActive) {
-            updateDrone(pl);
+        if (pl && pl.alive && pl.droneCount > 0) {
+            updateDrones(pl);
         }
     }
 
@@ -215,7 +215,7 @@ function draw() {
     if (boss) drawBoss();
     drawParticles();
     drawExpOrbs();
-    drawDrone();
+    drawDrones();
     drawCrosshair();
 
     if (p1 && p1.alive) {

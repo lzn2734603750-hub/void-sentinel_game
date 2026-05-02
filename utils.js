@@ -280,12 +280,12 @@ function updateExpOrbs(player) {
         const dx = player.x - o.x;
         const dy = player.y - o.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const attractDist = 80 + o.radius;
+        const attractDist = (80 + (player.magnetRange || 0)) + o.radius;
 
         if (dist < attractDist) {
             const force = (attractDist - dist) / attractDist;
-            o.x += (dx / dist) * force * 3;
-            o.y += (dy / dist) * force * 3;
+            o.x += (dx / dist) * force * 4;
+            o.y += (dy / dist) * force * 4;
         }
         if (dist < 20 + o.radius) {
             var ds = window.getDifficultySettings ? getDifficultySettings() : { expMul: 1 };
