@@ -374,7 +374,7 @@ function setupMobile() {
         aimFireThumb.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
         aimFireLabel.style.display = 'none';
         if (dist > 3 || !mobileAimActive) {
-            mobileAimAngle = Math.atan2(dy * 0.55, dx * 0.55);
+            mobileAimAngle = Math.atan2(dy * 0.35, dx * 0.35);
         }
         mobileAimActive = true;
     }
