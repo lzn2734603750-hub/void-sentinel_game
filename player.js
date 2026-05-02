@@ -91,8 +91,6 @@ var mobileMoveX = 0;
 var mobileMoveY = 0;
 var mobileAimX = canvas.width / 2;
 var mobileAimY = canvas.height / 2;
-var mobileAimDirX = 0;
-var mobileAimDirY = 0;
 var mobileAimActive = false;
 var mobileFire = false;
 var mobileDash = false;
@@ -171,16 +169,13 @@ function updatePlayerMovement(player, isP2) {
         player.y += my * player.speed;
     }
 
-    if (player.x < player.radius) player.x = player.radius;
-    if (player.x > canvas.width - player.radius) player.x = canvas.width - player.radius;
-    if (player.y < player.radius) player.y = player.radius;
-    if (player.y > canvas.height - player.radius) player.y = canvas.height - player.radius;
+    clampPlayerToCanvas(player);
 
     // 瞄准
     if (!isP2) {
         if (gameMode === 'solo') {
             if (isMobile() && mobileAimActive) {
-                player.angle = Math.atan2(mobileAimDirY, mobileAimDirX);
+                player.angle = Math.atan2(mobileAimY - player.y, mobileAimX - player.x);
             } else if (isMobile() && (mobileMoveX !== 0 || mobileMoveY !== 0)) {
                 player.angle = Math.atan2(mobileMoveY, mobileMoveX);
             } else {
@@ -239,15 +234,13 @@ function updatePlayerMovement(player, isP2) {
     }
 
     // 射击
+    var canFireMouse = gameMode === 'solo' || gameMode === 'network';
     if (!isP2) {
-        if (gameMode === 'solo') {
-            if ((mouseDown || mobileFire) && player.fireCooldown <= 0) {
-                spawnBullets(player);
-                player.fireCooldown = player.fireRate;
-            }
-        } else {
-            if (keys.f && player.fireCooldown <= 0) {
-                spawnBullets(player);
+        if ((canFireMouse && (mouseDown || mobileFire)) || (!canFireMouse && keys.f)) {
+            if (player.fireCooldown <= 0) {
+                if (!(gameMode === 'network' && typeof networkRole !== 'undefined' && networkRole === 'guest')) {
+                    spawnBullets(player);
+                }
                 player.fireCooldown = player.fireRate;
             }
         }
@@ -321,6 +314,7 @@ function updateDash(player) {
     if (player.dashTimer > 0) {
         player.x += player.dashVx;
         player.y += player.dashVy;
+        clampPlayerToCanvas(player);
         player.dashTimer--;
         if (player.dashTimer <= 0) player.invincible = false;
 
@@ -474,6 +468,14 @@ function damagePlayer(player, amount) {
         player.alive = false;
         spawnExplosion(player.x, player.y, 30, ['#0ff', '#0af', '#fff', '#08f']);
     }
+}
+
+function clampPlayerToCanvas(player) {
+    if (!player) return;
+    if (player.x < player.radius) player.x = player.radius;
+    if (player.x > canvas.width - player.radius) player.x = canvas.width - player.radius;
+    if (player.y < player.radius) player.y = player.radius;
+    if (player.y > canvas.height - player.radius) player.y = canvas.height - player.radius;
 }
 
 function isAllPlayersDead() {

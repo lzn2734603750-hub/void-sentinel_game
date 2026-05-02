@@ -56,7 +56,7 @@ function onMessage(ws, raw) {
 
     if (type === 'create_room') {
         var code = generateRoomCode();
-        rooms[code] = { host: ws, guest: null, hostReady: true, guestReady: false };
+        rooms[code] = { host: ws, guest: null, hostReady: false, guestReady: false };
         ws.roomCode = code;
         ws.role = 'host';
         send(ws, { type: 'room_created', room: code, readyState: roomReadyState(rooms[code]) });
@@ -74,6 +74,33 @@ function onMessage(ws, raw) {
         send(ws, { type: 'room_joined', room: roomCode, readyState: roomReadyState(room) });
         send(room.host, { type: 'peer_joined', readyState: roomReadyState(room) });
         console.log('[房间] ' + roomCode + ' Guest 已加入');
+        return;
+    }
+
+    if (type === 'rejoin_room') {
+        var room = rooms[roomCode];
+        if (!room) { send(ws, { type: 'error', payload: '房间已失效，请重新创建' }); return; }
+        var role = msg.role;
+        if (role === 'host') {
+            if (room.host && room.host.readyState === WebSocket.OPEN) {
+                send(ws, { type: 'error', payload: '主机已在线' });
+                return;
+            }
+            room.host = ws;
+            ws.roomCode = roomCode;
+            ws.role = 'host';
+            send(ws, { type: 'room_rejoined', room: roomCode, role: 'host', readyState: roomReadyState(room) });
+        } else if (role === 'guest') {
+            if (room.guest && room.guest.readyState === WebSocket.OPEN) {
+                send(ws, { type: 'error', payload: '客机已在房间' });
+                return;
+            }
+            room.guest = ws;
+            ws.roomCode = roomCode;
+            ws.role = 'guest';
+            send(ws, { type: 'room_rejoined', room: roomCode, role: 'guest', readyState: roomReadyState(room) });
+        }
+        console.log('[房间] ' + roomCode + ' ' + (role || 'unknown') + ' 重连');
         return;
     }
 
@@ -104,6 +131,14 @@ function onMessage(ws, raw) {
         if (!room) return;
         var dest = ws.role === 'host' ? room.guest : room.host;
         send(dest, { type: 'game_state', payload: payload });
+        return;
+    }
+
+    if (type === 'game_restart') {
+        var room = rooms[roomCode];
+        if (!room) return;
+        var dest = ws.role === 'host' ? room.guest : room.host;
+        send(dest, { type: 'game_restart' });
         return;
     }
 
@@ -152,7 +187,9 @@ wss.on('connection', function (ws) {
         leaveRoom(ws);
         console.log('[连接] 客户端断开');
     });
-    ws.on('error', function () {});
+    ws.on('error', function (err) {
+        console.error('[错误] 客户端连接错误:', err.message || err);
+    });
 });
 
 // ---------- 启动 ----------

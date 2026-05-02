@@ -55,7 +55,10 @@ function resetGame() {
     document.getElementById('nameInputPanel').style.display = 'none';
     gameState = 'playing';
     if (gameMode !== 'network') startBGM();
-    if (gameMode === 'network') startBGM();
+    if (gameMode === 'network') {
+        startBGM();
+        if (typeof startNetworkGame === 'function') startNetworkGame();
+    }
 }
 
 function endGame() {
@@ -144,13 +147,17 @@ function update() {
     if (!bossActive) {
         enemySpawnTimer++;
         if (enemySpawnTimer >= enemySpawnDelay) {
-            spawnEnemy();
+            if (!(gameMode === 'network' && networkRole === 'guest')) {
+                spawnEnemy();
+            }
             enemySpawnTimer = 0;
         }
     }
 
     updateEnemies();
-    checkBulletEnemyCollisions();
+    if (!(gameMode === 'network' && networkRole === 'guest')) {
+        checkBulletEnemyCollisions();
+    }
     updateParticles();
 
     for (var i = 0; i < players.length; i++) {
@@ -160,7 +167,9 @@ function update() {
         }
     }
 
-    updateWave();
+    if (!(gameMode === 'network' && networkRole === 'guest')) {
+        updateWave();
+    }
 
     if (boss) updateBoss();
 
@@ -177,9 +186,6 @@ function update() {
     }
 
     if (isAllPlayersDead()) {
-        if (gameMode === 'network') {
-            leaveNetworkRoom();
-        }
         endGame();
         return;
     }
@@ -336,9 +342,6 @@ function setupMobile() {
         e.preventDefault();
         aimPointerId = null;
         mobileFire = false;
-        mobileAimActive = false;
-        mobileAimDirX = 0;
-        mobileAimDirY = 0;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -347,9 +350,6 @@ function setupMobile() {
         if (e.pointerId !== aimPointerId) return;
         aimPointerId = null;
         mobileFire = false;
-        mobileAimActive = false;
-        mobileAimDirX = 0;
-        mobileAimDirY = 0;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -358,9 +358,6 @@ function setupMobile() {
         if (e.pointerId !== aimPointerId) return;
         aimPointerId = null;
         mobileFire = false;
-        mobileAimActive = false;
-        mobileAimDirX = 0;
-        mobileAimDirY = 0;
         aimFireThumb.style.transform = 'translate(-50%,-50%)';
         aimFireLabel.style.display = '';
     });
@@ -373,15 +370,11 @@ function setupMobile() {
         var dx = clientX - cx;
         var dy = clientY - cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; dist = maxR; }
+        if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; }
         aimFireThumb.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
         aimFireLabel.style.display = 'none';
         mobileAimX = cx + dx;
         mobileAimY = cy + dy;
-        if (dist > 5) {
-            mobileAimDirX = dx / dist;
-            mobileAimDirY = dy / dist;
-        }
         mobileAimActive = true;
     }
 
@@ -423,6 +416,9 @@ window.addEventListener('keydown', (e) => {
         }
     }
     if (gameState === 'gameover' && e.key === 'r') {
+        if (gameMode === 'network' && networkWs && networkWs.readyState === WebSocket.OPEN) {
+            networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
+        }
         resetGame();
     }
 });
