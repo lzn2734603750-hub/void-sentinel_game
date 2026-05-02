@@ -366,7 +366,7 @@ function setupMobile() {
         if (!aimBaseRect) return;
         var cx = aimBaseRect.left + aimBaseRect.width / 2;
         var cy = aimBaseRect.top + aimBaseRect.height / 2;
-        var maxR = aimBaseRect.width / 2 - 25;
+        var maxR = aimBaseRect.width / 2 - 22;
         var dx = clientX - cx;
         var dy = clientY - cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
