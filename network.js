@@ -133,6 +133,7 @@ function handleNetworkMessage(msg) {
             break;
 
         case 'game_restart':
+            startNetworkGame();
             resetGame();
             break;
 

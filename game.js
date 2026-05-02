@@ -55,10 +55,7 @@ function resetGame() {
     document.getElementById('nameInputPanel').style.display = 'none';
     gameState = 'playing';
     if (gameMode !== 'network') startBGM();
-    if (gameMode === 'network') {
-        startBGM();
-        if (typeof startNetworkGame === 'function') startNetworkGame();
-    }
+    if (gameMode === 'network') startBGM();
 }
 
 function endGame() {
@@ -116,7 +113,7 @@ function update() {
     updateNebulae();
     updateShootingStars();
 
-    if (gameState === 'menu' || gameState === 'scoreboard') return;
+    if (gameState === 'menu' || gameState === 'scoreboard' || gameState === 'network_lobby') return;
 
     if (gameState === 'upgrading') {
         if (gameMode === 'network' && networkState === 'playing') {

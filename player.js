@@ -173,7 +173,7 @@ function updatePlayerMovement(player, isP2) {
 
     // 瞄准
     if (!isP2) {
-        if (gameMode === 'solo') {
+        if (gameMode === 'solo' || gameMode === 'network') {
             if (isMobile() && mobileAimActive) {
                 player.angle = Math.atan2(mobileAimY - player.y, mobileAimX - player.x);
             } else if (isMobile() && (mobileMoveX !== 0 || mobileMoveY !== 0)) {
