@@ -173,11 +173,11 @@ function updatePlayerMovement(player, isP2) {
     // 瞄准
     if (!isP2) {
         if (gameMode === 'solo' || gameMode === 'network') {
-            if (isMobile() && mobileAimActive) {
-                player.angle = mobileAimAngle;
-            } else if (isMobile() && (mobileMoveX !== 0 || mobileMoveY !== 0)) {
-                player.angle = Math.atan2(mobileMoveY, mobileMoveX);
-            } else if (!isMobile()) {
+            if (isMobile()) {
+                if (mobileAimActive) {
+                    player.angle = mobileAimAngle;
+                }
+            } else {
                 player.angle = Math.atan2(mouseY - player.y, mouseX - player.x);
             }
         } else {
@@ -290,7 +290,7 @@ function tryDash(player) {
     }
 
     if (mx === 0 && my === 0) {
-        const a = Math.atan2(mouseY - player.y, mouseX - player.x);
+        const a = isMobile() ? (mobileAimActive ? mobileAimAngle : player.angle) : Math.atan2(mouseY - player.y, mouseX - player.x);
         mx = Math.cos(a);
         my = Math.sin(a);
     } else {
