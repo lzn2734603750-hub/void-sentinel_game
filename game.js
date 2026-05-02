@@ -370,8 +370,9 @@ function setupMobile() {
         if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; }
         aimFireThumb.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
         aimFireLabel.style.display = 'none';
-        mobileAimX = cx + dx;
-        mobileAimY = cy + dy;
+        var canvasRect = canvas.getBoundingClientRect();
+        mobileAimX = (cx + dx) - canvasRect.left;
+        mobileAimY = (cy + dy) - canvasRect.top;
         mobileAimActive = true;
     }
 

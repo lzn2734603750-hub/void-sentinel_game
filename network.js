@@ -114,6 +114,7 @@ function handleNetworkMessage(msg) {
             break;
 
         case 'host_start':
+            networkError = '';
             networkState = 'playing';
             if (networkRole === 'host') {
                 startNetworkGame();
@@ -143,8 +144,7 @@ function handleNetworkMessage(msg) {
             break;
 
         case 'error':
-            networkState = 'idle';
-            networkRole = '';
+            networkError = msg.payload || '发生错误';
             break;
     }
 }
@@ -185,10 +185,20 @@ function toggleNetworkReady() {
 }
 
 function hostStartGame() {
-    if (!networkWs || networkWs.readyState !== WebSocket.OPEN || !networkRoom) return;
+    if (!networkWs || networkWs.readyState !== WebSocket.OPEN || !networkRoom) {
+        networkError = '连接已断开';
+        return;
+    }
     if (networkRole !== 'host') return;
-    if (!networkPeerJoined) return;
-    if (!networkGuestReady) return;
+    if (!networkPeerJoined) {
+        networkError = '队友尚未加入房间';
+        return;
+    }
+    if (!networkGuestReady) {
+        networkError = '队友尚未就绪';
+        return;
+    }
+    networkError = '';
     networkWs.send(JSON.stringify({ type: 'host_start', room: networkRoom }));
     playSound('click');
 }

@@ -618,7 +618,7 @@ function drawNetworkLobby() {
         return;
     }
 
-    if (networkError && networkState === 'idle' && networkRole !== '') {
+    if (networkError && networkState === 'idle' && networkRole === '') {
         ctx.fillStyle = '#f44';
         ctx.font = '18px sans-serif';
         ctx.fillText('⚠ ' + networkError, hw, cy + 20);
@@ -634,9 +634,16 @@ function drawNetworkLobby() {
     }
 
     if (networkState === 'playing') {
-        ctx.fillStyle = '#0f0';
-        ctx.font = '24px sans-serif';
-        ctx.fillText('游戏进行中...', hw, cy + 30);
+        if (networkError) {
+            ctx.fillStyle = '#f44';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚠ ' + networkError, hw, cy + 50);
+        } else {
+            ctx.fillStyle = '#0f0';
+            ctx.font = '24px sans-serif';
+            ctx.fillText('游戏进行中...', hw, cy + 30);
+        }
         return;
     }
 
@@ -670,6 +677,13 @@ function drawNetworkLobby() {
 }
 
 function drawNetworkWaitingPage(hw, cy) {
+    if (networkError) {
+        ctx.fillStyle = '#f44';
+        ctx.font = '18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚠ ' + networkError, hw, cy - 10);
+    }
+
     ctx.fillStyle = '#0f0';
     ctx.font = 'bold 46px sans-serif';
     ctx.textAlign = 'center';
@@ -725,6 +739,7 @@ function drawNetworkWaitingPage(hw, cy) {
         var btnColor = allReady ? '#0f0' : '#555';
         var btnText = allReady ? '▶ 开始游戏' : (networkPeerJoined ? '等待队友就绪' : '等待队友加入');
         drawButton(hw - 95, baseY, 190, 48, btnColor, btnText, '');
+        window._netHostBtnY = baseY;
     }
 
     if (networkRole === 'guest') {
@@ -753,6 +768,7 @@ function drawNetworkWaitingPage(hw, cy) {
         var readyText = networkGuestReady ? '✅ 已就绪（点击取消）' : '准备';
         var readyColor = networkGuestReady ? '#ffd700' : '#0f0';
         drawButton(hw - 95, baseY, 190, 48, readyColor, readyText, '');
+        window._netGuestBtnY = baseY;
 
         baseY += 54;
         ctx.fillStyle = '#555';
@@ -795,31 +811,22 @@ function handleNetworkLobbyClick(cx, cy) {
         return;
     }
 
-    if (networkError && networkState === 'idle' && networkRole !== '') {
-        if (cx >= hw - 190 && cx <= hw - 90 && cy >= 160 + 90 && cy <= 160 + 130) {
-            playSound('click');
-            networkError = '';
-            if (networkRole === 'host') createNetworkRoom();
-            else if (networkRole === 'guest') joinNetworkRoom(networkRoom);
+    if (networkState === 'waiting' && networkRole === 'host') {
+        var btnY = window._netHostBtnY || 320;
+        if (cx >= hw - 95 && cx <= hw + 95 && cy >= btnY && cy <= btnY + 48) {
+            if (networkPeerJoined && networkGuestReady) {
+                hostStartGame();
+            }
             return;
         }
-        if (cx >= hw + 90 && cx <= hw + 190 && cy >= 160 + 90 && cy <= 160 + 130) {
-            playSound('click');
-            leaveNetworkRoom();
-            gameState = 'menu';
+    }
+
+    if (networkState === 'waiting' && networkRole === 'guest') {
+        var gBtnY = window._netGuestBtnY || 320;
+        if (cx >= hw - 95 && cx <= hw + 95 && cy >= gBtnY && cy <= gBtnY + 48) {
+            toggleNetworkReady();
             return;
         }
-        return;
-    }
-
-    if (networkState === 'waiting' && networkRole === 'host' && cx >= hw - 95 && cx <= hw + 95 && cy >= 320 && cy <= 368) {
-        if (networkPeerJoined && networkGuestReady) hostStartGame();
-        return;
-    }
-
-    if (networkState === 'waiting' && networkRole === 'guest' && cx >= hw - 95 && cx <= hw + 95 && cy >= 320 && cy <= 368) {
-        toggleNetworkReady();
-        return;
     }
 
     if (networkRole === '') {
