@@ -370,10 +370,10 @@ function setupMobile() {
         var dx = clientX - cx;
         var dy = clientY - cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; }
+        if (dist > maxR) { dx = dx / dist * maxR; dy = dy / dist * maxR; dist = maxR; }
         aimFireThumb.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
         aimFireLabel.style.display = 'none';
-        if (dist > 8) {
+        if (dist > 3 || !mobileAimActive) {
             mobileAimAngle = Math.atan2(dy, dx);
         }
         mobileAimActive = true;

@@ -243,6 +243,7 @@ function reconnectToRoom() {
 
 // ---------- 游戏状态同步 ----------
 function startNetworkGame() {
+    stopStateSync();
     if (networkRole === 'host') {
         networkStateSyncTimer = setInterval(function () { syncHostState(); }, 100);
     } else {
@@ -268,7 +269,8 @@ function syncGuestInput() {
         hp: p1.hp, maxHp: p1.maxHp,
         exp: p1.exp, expToNext: p1.expToNext,
         shieldActive: p1.shieldActive,
-        shooting: mouseDown,
+        dashCooldown: p1.dashCooldown,
+        shooting: mouseDown || mobileFire,
         fireCooldown: p1.fireCooldown,
         fireRate: p1.fireRate, bulletCount: p1.bulletCount,
         bulletSpeed: p1.bulletSpeed, bulletDamage: p1.bulletDamage,
@@ -323,6 +325,7 @@ function applyRemoteState(state) {
         clampPlayerToCanvas(p2);
         p2.hp = d.hp; p2.maxHp = d.maxHp; p2.exp = d.exp; p2.expToNext = d.expToNext;
         p2.shieldActive = d.shieldActive; p2.alive = d.hp > 0;
+        p2.dashCooldown = d.dashCooldown || 0;
         p2.fireRate = d.fireRate; p2.bulletCount = d.bulletCount;
         p2.bulletSpeed = d.bulletSpeed || 10; p2.bulletDamage = d.bulletDamage || 1;
         p2.bulletSize = d.bulletSize || 1; p2.critChance = d.critChance || 0;
@@ -343,6 +346,7 @@ function applyRemoteState(state) {
             clampPlayerToCanvas(p2);
             p2.hp = state.host.hp; p2.maxHp = state.host.maxHp;
             p2.alive = state.host.hp > 0; p2.shieldActive = state.host.shieldActive;
+            p2.dashCooldown = state.host.dashCooldown || 0;
         }
         if (state.guest && p1 && p1.alive) {
             p1.exp = state.guest.exp;
