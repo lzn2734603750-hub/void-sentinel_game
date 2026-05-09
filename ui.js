@@ -348,10 +348,14 @@ function handleClick(cx, cy) {
         }
         if (rectContains(gbx, gbtnY, gbw, 52, cx, cy)) {
             playSound('click');
-            if (gameMode === 'network' && networkWs && networkWs.readyState === WebSocket.OPEN) {
-                networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
+            if (gameMode === 'network') {
+                if (networkRole === 'host' && networkWs && networkWs.readyState === WebSocket.OPEN) {
+                    networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
+                    resetGame();
+                }
+            } else {
+                resetGame();
             }
-            resetGame();
             return;
         }
         if (rectContains(gbx, gbtnY + 70, gbw, 52, cx, cy)) {

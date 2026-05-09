@@ -151,9 +151,11 @@ function update() {
         }
     }
 
-    updateEnemies();
     if (!(gameMode === 'network' && networkRole === 'guest')) {
+        updateEnemies();
         checkBulletEnemyCollisions();
+    } else {
+        updateEnemiesGuestVisual();
     }
     updateParticles();
 
@@ -168,7 +170,7 @@ function update() {
         updateWave();
     }
 
-    if (boss) updateBoss();
+    if (boss && !(gameMode === 'network' && networkRole === 'guest')) updateBoss();
 
     for (var i = 0; i < players.length; i++) {
         var pl = players[i];
@@ -417,10 +419,14 @@ window.addEventListener('keydown', (e) => {
         }
     }
     if (gameState === 'gameover' && e.key === 'r') {
-        if (gameMode === 'network' && networkWs && networkWs.readyState === WebSocket.OPEN) {
-            networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
+        if (gameMode === 'network') {
+            if (networkRole === 'host' && networkWs && networkWs.readyState === WebSocket.OPEN) {
+                networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
+                resetGame();
+            }
+        } else {
+            resetGame();
         }
-        resetGame();
     }
 });
 

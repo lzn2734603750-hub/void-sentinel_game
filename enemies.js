@@ -99,6 +99,21 @@ function spawnEnemy() {
     });
 }
 
+// 联机客机端只更新敌人位置用于视觉表现，不做碰撞检测（主机权威）
+function updateEnemiesGuestVisual() {
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        var e = enemies[i];
+        if (e.behavior === 'bossBullet') {
+            e.x += e.vx;
+            e.y += e.vy;
+            if (e.x < -20 || e.x > canvas.width + 20 ||
+                e.y < -20 || e.y > canvas.height + 20) {
+                enemies.splice(i, 1);
+            }
+        }
+    }
+}
+
 function updateEnemies() {
     for (let i = enemies.length - 1; i >= 0; i--) {
         const e = enemies[i];
