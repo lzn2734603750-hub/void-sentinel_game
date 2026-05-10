@@ -321,7 +321,7 @@ function handleClick(cx, cy) {
             particles.length = 0;
             expOrbs.length = 0;
             enemySpawnTimer = 0;
-            drones = [];
+            players.forEach(function(p) { if (p) p.drones = []; });
             players.length = 0;
             p1 = null;
             p2 = null;
@@ -347,15 +347,9 @@ function handleClick(cx, cy) {
             return;
         }
         if (rectContains(gbx, gbtnY, gbw, 52, cx, cy)) {
+            if (gameMode === 'network' && networkRole === 'guest') return;
             playSound('click');
-            if (gameMode === 'network') {
-                if (networkRole === 'host' && networkWs && networkWs.readyState === WebSocket.OPEN) {
-                    networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
-                    resetGame();
-                }
-            } else {
-                resetGame();
-            }
+            tryNetworkRestart();
             return;
         }
         if (rectContains(gbx, gbtnY + 70, gbw, 52, cx, cy)) {
@@ -371,7 +365,7 @@ function handleClick(cx, cy) {
             particles.length = 0;
             expOrbs.length = 0;
             enemySpawnTimer = 0;
-            drones = [];
+            players.forEach(function(p) { if (p) p.drones = []; });
             players.length = 0;
             p1 = null;
             p2 = null;
@@ -983,7 +977,10 @@ function drawGameOver() {
     }
 
     var btnY = isHighScore(gameMode, score) ? canvas.height / 2 + 100 : canvas.height / 2 + 35;
-    drawButton(Math.max(30, hw - 110), btnY, Math.min(220, canvas.width - 60), 52, '#0ff', '重新开始', '');
+    var isNetworkGuest = gameMode === 'network' && networkRole === 'guest';
+    var restartText = isNetworkGuest ? '等待主机重新开始' : '重新开始';
+    var restartColor = isNetworkGuest ? '#555' : '#0ff';
+    drawButton(Math.max(30, hw - 110), btnY, Math.min(220, canvas.width - 60), 52, restartColor, restartText, '');
     drawButton(Math.max(30, hw - 110), btnY + 70, Math.min(220, canvas.width - 60), 52, '#888', '返回菜单', '');
 }
 
@@ -1205,6 +1202,25 @@ function drawPauseOverlay() {
     var cy = canvas.height / 2 + 20;
     drawButton(hw - 110, cy, 220, 55, '#0ff', '继续游戏', '▶');
     drawButton(hw - 110, cy + 80, 220, 55, '#f44', '返回主菜单', '◀');
+}
+
+// ---------- 断线提示 ----------
+
+function drawDisconnectOverlay() {
+    if (!networkError || gameState !== 'playing') return;
+    if (gameMode !== 'network') return;
+    ctx.fillStyle = 'rgba(0,0,0,.6)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f44';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#f00';
+    ctx.shadowBlur = 12;
+    ctx.fillText('⚠ ' + networkError, canvas.width / 2, canvas.height / 2);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#aaa';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('正在尝试自动重连...', canvas.width / 2, canvas.height / 2 + 35);
 }
 
 // ---------- 初始化 ----------

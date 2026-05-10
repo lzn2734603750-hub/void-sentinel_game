@@ -52,6 +52,7 @@ function createPlayer(x, y, playerIndex) {
         bulletSize: 1,
         magnetRange: 0,
         spreadMode: 0,
+        drones: [],
         playerIndex,
         alive: true,
         colorScheme: scheme,
@@ -344,22 +345,22 @@ function spawnShieldEffect(player) {
     spawnShieldParticles(player.x, player.y);
 }
 
-// ---------- 僚机系统 (多架) ----------
-var drones = [];
+// ---------- 僚机系统 (多架, 每个玩家独立) ----------
 
 function updateDrones(player) {
     if (!player || !player.alive || player.droneCount <= 0) {
-        drones = [];
+        player.drones = [];
         return;
     }
-    while (drones.length < player.droneCount) {
-        drones.push({ angle: Math.random() * Math.PI * 2, timer: 0 });
+    if (!player.drones) player.drones = [];
+    while (player.drones.length < player.droneCount) {
+        player.drones.push({ angle: Math.random() * Math.PI * 2, timer: 0 });
     }
-    while (drones.length > player.droneCount) {
-        drones.pop();
+    while (player.drones.length > player.droneCount) {
+        player.drones.pop();
     }
-    for (var di = 0; di < drones.length; di++) {
-        var dr = drones[di];
+    for (var di = 0; di < player.drones.length; di++) {
+        var dr = player.drones[di];
         dr.angle += 0.03 + di * 0.004;
         dr.timer++;
         var ox = player.x + Math.cos(dr.angle) * (40 + di * 10);
@@ -390,26 +391,28 @@ function updateDrones(player) {
 }
 
 function drawDrones() {
-    if (drones.length === 0) return;
-    for (var di = 0; di < drones.length; di++) {
-        var dr = drones[di];
-        if (!p1 || !p1.alive) return;
-        var ox = p1.x + Math.cos(dr.angle) * (40 + di * 10);
-        var oy = p1.y + Math.sin(dr.angle) * (40 + di * 10);
-        ctx.fillStyle = '#0fa';
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#0fa';
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.arc(ox, oy, 9, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(ox, oy, 3, 0, Math.PI * 2);
-        ctx.fill();
+    for (var pi = 0; pi < players.length; pi++) {
+        var player = players[pi];
+        if (!player || !player.alive || !player.drones || player.drones.length === 0) continue;
+        for (var di = 0; di < player.drones.length; di++) {
+            var dr = player.drones[di];
+            var ox = player.x + Math.cos(dr.angle) * (40 + di * 10);
+            var oy = player.y + Math.sin(dr.angle) * (40 + di * 10);
+            ctx.fillStyle = '#0fa';
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.shadowColor = '#0fa';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(ox, oy, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 }
 

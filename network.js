@@ -117,13 +117,8 @@ function handleNetworkMessage(msg) {
         case 'host_start':
             networkError = '';
             networkState = 'playing';
-            if (networkRole === 'host') {
-                startNetworkGame();
-                resetGame();
-            } else {
-                startNetworkGame();
-                resetGame();
-            }
+            startNetworkGame();
+            resetGame();
             break;
 
         case 'peer_left':
@@ -285,7 +280,6 @@ function syncGuestInput() {
         shieldActive: p1.shieldActive,
         dashCooldown: p1.dashCooldown,
         shooting: mouseDown || mobileFire,
-        fireCooldown: p1.fireCooldown,
         fireRate: p1.fireRate, bulletCount: p1.bulletCount,
         bulletSpeed: p1.bulletSpeed, bulletDamage: p1.bulletDamage,
         bulletSize: p1.bulletSize, critChance: p1.critChance,
@@ -372,18 +366,13 @@ function applyRemoteState(state) {
         p2.bulletSpeed = d.bulletSpeed || 10; p2.bulletDamage = d.bulletDamage || 1;
         p2.bulletSize = d.bulletSize || 1; p2.critChance = d.critChance || 0;
         p2.spreadMode = d.spreadMode || 0;
-        p2.fireCooldown = d.fireCooldown;
+        p2._remoteShooting = d.shooting;
         p2.speed = d.speed || 5;
         p2.droneCount = d.droneCount || 0;
         p2.shockwaveOnHit = d.shockwaveOnHit || false;
         p2.magnetRange = d.magnetRange || 0;
         p2.dashSpeed = d.dashSpeed || 15;
         p2.dashCooldownMax = d.dashCooldownMax || 90;
-        if (d.shooting && p2.fireCooldown <= 0 && p2.alive) {
-            spawnBullets(p2);
-            p2.fireCooldown = p2.fireRate;
-        }
-        if (p2.fireCooldown > 0) p2.fireCooldown--;
         return;
     }
     if (state.type === 'full_sync' && networkRole === 'guest') {

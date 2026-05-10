@@ -42,7 +42,8 @@ function resetGame() {
     particles.length = 0;
     expOrbs.length = 0;
     enemySpawnTimer = 0;
-    drones = [];
+    if (p1) p1.drones = [];
+    if (p2) p2.drones = [];
 
     var ds = getDifficultySettings();
     resetEnemyParams();
@@ -136,6 +137,20 @@ function update() {
             if (gameMode === 'network' && player.playerIndex === 1 && networkRole === 'guest') continue;
             updatePlayerMovement(player, player.playerIndex === 1);
             updateDash(player);
+        }
+    }
+
+    // 联机主机：管理客机(p2)的射击和计时器
+    if (gameMode === 'network' && networkRole === 'host' && p2 && p2.alive) {
+        if (p2.fireCooldown > 0) p2.fireCooldown--;
+        if (p2.dashCooldown > 0) p2.dashCooldown--;
+        if (p2.shieldActive) {
+            p2.shieldTimer--;
+            if (p2.shieldTimer <= 0) p2.shieldActive = false;
+        }
+        if (p2._remoteShooting && p2.fireCooldown <= 0 && p2.hp > 0) {
+            spawnBullets(p2);
+            p2.fireCooldown = p2.fireRate;
         }
     }
 
@@ -245,6 +260,9 @@ function draw() {
     drawWaveText();
     drawAchievementPopup();
 
+    if (gameState === 'playing' && gameMode === 'network' && networkError) {
+        drawDisconnectOverlay();
+    }
     if (gameState === 'gameover' || gameState === 'nameInput') {
         drawGameOver();
     }
@@ -425,14 +443,7 @@ window.addEventListener('keydown', (e) => {
         }
     }
     if (gameState === 'gameover' && e.key === 'r') {
-        if (gameMode === 'network') {
-            if (networkRole === 'host' && networkWs && networkWs.readyState === WebSocket.OPEN) {
-                networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
-                resetGame();
-            }
-        } else {
-            resetGame();
-        }
+        tryNetworkRestart();
     }
 });
 

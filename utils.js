@@ -316,6 +316,19 @@ function drawExpOrbs() {
     ctx.globalAlpha = 1;
 }
 
+// ---------- 网络游戏重启 ----------
+
+function tryNetworkRestart() {
+    if (gameMode === 'network') {
+        if (networkRole === 'host' && networkWs && networkWs.readyState === WebSocket.OPEN) {
+            networkWs.send(JSON.stringify({ type: 'game_restart', room: networkRoom }));
+            resetGame();
+        }
+    } else {
+        resetGame();
+    }
+}
+
 // ---------- 窗口大小调整 ----------
 window.addEventListener('resize', () => {
     canvas.width = innerWidth;
