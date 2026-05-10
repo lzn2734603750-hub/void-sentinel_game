@@ -13,12 +13,12 @@ var waveText = '';
 var waveTextTimer = 0;
 
 var DIFFICULTY_SETTINGS = {
-    easy:   { enemySpeedMul: 0.5, spawnDelayAdd: 25, playerExtraHP: 3, bossHPMul: 0.4, waveMul: 1.6, expMul: 0.5 },
-    normal: { enemySpeedMul: 0.75, spawnDelayAdd: 10, playerExtraHP: 1, bossHPMul: 0.7, waveMul: 1.2, expMul: 0.8 },
-    hard:   { enemySpeedMul: 1.0, spawnDelayAdd: 0, playerExtraHP: 0, bossHPMul: 1.0, waveMul: 1.0, expMul: 1.0 },
-    easy_m:   { enemySpeedMul: 0.4, spawnDelayAdd: 30, playerExtraHP: 4, bossHPMul: 0.35, waveMul: 1.8, expMul: 0.45 },
-    normal_m: { enemySpeedMul: 0.6, spawnDelayAdd: 15, playerExtraHP: 2, bossHPMul: 0.6, waveMul: 1.4, expMul: 0.7 },
-    hard_m:   { enemySpeedMul: 0.85, spawnDelayAdd: 5, playerExtraHP: 1, bossHPMul: 0.85, waveMul: 1.1, expMul: 0.9 },
+    easy:   { enemySpeedMul: 0.40, spawnDelayAdd: 32, playerExtraHP: 4, bossHPMul: 0.35, waveMul: 1.8, expMul: 0.5 },
+    normal: { enemySpeedMul: 0.60, spawnDelayAdd: 18, playerExtraHP: 2, bossHPMul: 0.55, waveMul: 1.35, expMul: 0.8 },
+    hard:   { enemySpeedMul: 0.82, spawnDelayAdd: 6,  playerExtraHP: 1, bossHPMul: 0.80, waveMul: 1.1, expMul: 0.9 },
+    easy_m:   { enemySpeedMul: 0.35, spawnDelayAdd: 35, playerExtraHP: 5, bossHPMul: 0.30, waveMul: 1.9, expMul: 0.4 },
+    normal_m: { enemySpeedMul: 0.50, spawnDelayAdd: 22, playerExtraHP: 3, bossHPMul: 0.50, waveMul: 1.5, expMul: 0.65 },
+    hard_m:   { enemySpeedMul: 0.75, spawnDelayAdd: 10, playerExtraHP: 1, bossHPMul: 0.75, waveMul: 1.15, expMul: 0.85 },
 };
 
 function getDifficultySettings() {
@@ -182,6 +182,12 @@ function update() {
     if (achievementPopup) {
         achievementPopup.timer--;
         if (achievementPopup.timer <= 0) achievementPopup = null;
+    }
+
+    // 联机客机：自己死了就要看到结束画面，不等主机
+    if (gameMode === 'network' && networkRole === 'guest' && p1 && !p1.alive) {
+        if (gameState === 'playing') endGame();
+        return;
     }
 
     if (isAllPlayersDead()) {

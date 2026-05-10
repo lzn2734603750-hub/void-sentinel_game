@@ -389,7 +389,7 @@ function applyRemoteState(state) {
     if (state.type === 'full_sync' && networkRole === 'guest') {
         score = state.score; wave = state.wave; waveText = state.waveText;
         waveTimer = state.waveTimer || 0;
-        gameState = state.gameState; gameMode = state.gameMode; difficulty = state.difficulty;
+        gameMode = state.gameMode; difficulty = state.difficulty;
         bossActive = state.bossActive || false;
         if (state.enemyBaseSpeed !== undefined) enemyBaseSpeed = state.enemyBaseSpeed;
         if (state.enemySpawnDelay !== undefined) enemySpawnDelay = state.enemySpawnDelay;

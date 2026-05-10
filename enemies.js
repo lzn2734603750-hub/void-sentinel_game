@@ -99,10 +99,12 @@ function spawnEnemy() {
     });
 }
 
-// 联机客机端只更新敌人位置用于视觉表现，不做碰撞检测（主机权威）
+// 联机客机端：运行完整敌人AI移动但跳过碰撞检测（主机权威检测碰撞）
 function updateEnemiesGuestVisual() {
     for (let i = enemies.length - 1; i >= 0; i--) {
         var e = enemies[i];
+
+        // Boss子弹：只移动不出界删除，不做碰撞
         if (e.behavior === 'bossBullet') {
             e.x += e.vx;
             e.y += e.vy;
@@ -110,6 +112,90 @@ function updateEnemiesGuestVisual() {
                 e.y < -20 || e.y > canvas.height + 20) {
                 enemies.splice(i, 1);
             }
+            continue;
+        }
+
+        var anyAlive = false;
+        for (var pi2 = 0; pi2 < players.length; pi2++) {
+            if (players[pi2] && players[pi2].alive && players[pi2].hp > 0) {
+                anyAlive = true;
+                break;
+            }
+        }
+        if (!anyAlive) continue;
+
+        e.wobble += 0.05;
+
+        // 找最近存活玩家用于AI寻路
+        var targetPlayer = null;
+        var targetDist = Infinity;
+        for (var pi = 0; pi < players.length; pi++) {
+            var pp = players[pi];
+            if (!pp || !pp.alive || pp.hp <= 0) continue;
+            var pdx = pp.x - e.x, pdy = pp.y - e.y;
+            var pd = pdx * pdx + pdy * pdy;
+            if (pd < targetDist) { targetDist = pd; targetPlayer = pp; }
+        }
+        if (!targetPlayer) continue;
+
+        var dx = targetPlayer.x - e.x;
+        var dy = targetPlayer.y - e.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        // 运行移动AI（与 updateEnemies 一致但跳过碰撞和爆炸检测）
+        switch (e.behavior) {
+            case 'chase':
+            case 'shield':
+                if (dist > 0) { e.x += (dx / dist) * e.speed; e.y += (dy / dist) * e.speed; }
+                break;
+            case 'explode':
+                if (dist > 0 && dist < 300) {
+                    var spd = dist < 150 ? e.speed * 1.6 : e.speed;
+                    e.x += (dx / dist) * spd;
+                    e.y += (dy / dist) * spd;
+                } else if (dist > 0) {
+                    e.x += (dx / dist) * e.speed * 0.6;
+                    e.y += (dy / dist) * e.speed * 0.6;
+                }
+                break;
+            case 'sprint':
+                if (!e.updateTargetTimer || e.updateTargetTimer <= 0) {
+                    e.targetX = targetPlayer.x;
+                    e.targetY = targetPlayer.y;
+                    e.updateTargetTimer = 25;
+                }
+                e.updateTargetTimer--;
+                var tdx = e.targetX - e.x, tdy = e.targetY - e.y;
+                var tdist = Math.sqrt(tdx * tdx + tdy * tdy);
+                if (tdist > 0) {
+                    var spd2 = e.speed * 1.4;
+                    e.x += (tdx / tdist) * spd2;
+                    e.y += (tdy / tdist) * spd2;
+                }
+                break;
+            case 'swarm':
+                if (!e.updateTargetTimer || e.updateTargetTimer <= 0) {
+                    var orbitAngle = Math.random() * Math.PI * 2;
+                    var orbitDist = 60 + Math.random() * 100;
+                    e.targetX = targetPlayer.x + Math.cos(orbitAngle) * orbitDist;
+                    e.targetY = targetPlayer.y + Math.sin(orbitAngle) * orbitDist;
+                    e.updateTargetTimer = 40;
+                }
+                e.updateTargetTimer--;
+                var sdx = e.targetX - e.x, sdy = e.targetY - e.y;
+                var sdist = Math.sqrt(sdx * sdx + sdy * sdy);
+                if (sdist > 1) {
+                    e.x += (sdx / sdist) * e.speed;
+                    e.y += (sdy / sdist) * e.speed;
+                }
+                break;
+            case 'golden':
+                if (dist > 0) {
+                    var gspd = e.speed * 1.2 + Math.sin(Date.now() * 0.003) * 0.5;
+                    e.x += (dx / dist) * gspd;
+                    e.y += (dy / dist) * gspd;
+                }
+                break;
         }
     }
 }
